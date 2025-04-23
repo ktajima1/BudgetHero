@@ -1,0 +1,1 @@
+DATABASE_URI = 'sqlite:///budget_hero.db'
