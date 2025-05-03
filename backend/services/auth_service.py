@@ -1,5 +1,83 @@
+from sqlite3 import IntegrityError
+from backend.repositories.auth_repository import AuthRepository
 from backend.errors import InvalidPasswordError
+
 import re
+
+class AuthService:
+    def __init__(self, session):
+        self.repo = AuthRepository(session)
+
+    def register_user(self, username, password):
+        # Check that username fits requirements. Uniqueness is checked when adding user to database via catching DuplicateUsernameError
+        username_errors = validate_username(username)
+        # Check that password fits requirements
+        password_errors = validate_password(password)
+
+        if username_errors:
+            print("username error")
+            return False  # Code should display message on frontend for what errors exist with the username
+
+        if password_errors:
+            for error in password_errors:
+                print(f"password error: {error}")
+            return False  # Code should display message on frontend for what errors exist with the password
+
+        hashed_password = hash_password(password)  # Hash the password to store in database
+        print("preparing to create user")
+        try:
+            self.repo.create_user(username, hashed_password)
+            print("created user")
+            return True
+        except IntegrityError:
+            print("user already exists")
+            return False
+
+    def login_user(self, username, password):
+        try:
+            print("logging in")
+            user = self.repo.find_user(username)
+            if user and user.password_hash == hash_password(password):
+                print("logged in")
+                return user
+            else:
+                print("login failed")
+                return None
+        except Exception as e:
+            print(f"login error: {e}")
+
+    def change_password(self, username, new_password):
+        try:
+            password_errors = validate_password(new_password)
+            if password_errors:
+                for error in password_errors:
+                    print(f"password error: {error}")
+                print("CHANGE PASSWORD FAILED:")
+                return False
+
+            user = self.repo.find_user(username)
+            new_hashed_password = hash_password(new_password)
+            self.repo.change_password(user, new_hashed_password)
+            print("CHANGE PASSWORD SUCCESSFUL")
+            return True
+        except Exception as e:
+            print(f"changing password error: {e}")
+
+    def delete_user(self, username, password):
+        try:
+            user = self.repo.find_user(username)
+            if user is None:
+                print("DELETION FAILED: user does not exist")
+                return False
+            else:
+                hashed_password = hash_password(password)
+                if user.password_hash == hashed_password:
+                    self.repo.delete_user(user)
+                    print("deleted user")
+                else:
+                    print("DELETE FAILED: password does not match")
+        except Exception as e:
+            print(f"deletion error: {e}")
 
 # Look up hashing algorithm for passwords
 def hash_password(password):
@@ -36,3 +114,4 @@ def validate_password(password):
     if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
         errors["symbol"] = "Password must contain at least 1 symbol"
     return errors if errors else None
+

@@ -7,5 +7,3 @@ class User(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     username = Column(String(50), unique=True)
     password_hash = Column(String(128))
-
-def 

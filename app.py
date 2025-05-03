@@ -1,9 +1,20 @@
-from backend.database import engine, Base
-from backend.models import user
+from backend.database import initialize_database, get_session
+from backend.models.user import User
+from backend.services.auth_service import AuthService
 
-def initialize_database():
-    Base.metadata.create_all(bind=engine)
 
 if __name__ == "__main__":
     initialize_database()
-    print("Database tables created")
+    with get_session() as session:
+        auth_service = AuthService(session)
+
+        auth_service.delete_user("admin", "12345L@w")
+        auth_service.delete_user("admin", "10936S@n")
+        auth_service.register_user("admin", "10936S@n")
+        auth_service.login_user("admin", "10936S@n")
+        auth_service.login_user("admin", "12345L@w")
+        auth_service.change_password("admin", "12345L@w")
+        auth_service.login_user("admin", "10936S@n")
+        auth_service.login_user("admin", "12345L@w")
+
+    # print("Database tables created")
