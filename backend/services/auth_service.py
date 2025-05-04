@@ -4,6 +4,9 @@ from backend.errors import InvalidPasswordError
 
 import re
 
+from backend.utils.error_utils import handle_errors
+
+
 class AuthService:
     def __init__(self, session):
         self.repo = AuthRepository(session)
@@ -16,13 +19,11 @@ class AuthService:
         password_errors = validate_password(password)
 
         if username_errors:
-            for error in username_errors:
-                print(f"\tusername error: {username_errors[error]}")
+            handle_errors(username_errors, "auth_serv.register_user")
             return None  # Code should display message on frontend for what errors exist with the username
 
         if password_errors:
-            for error in password_errors:
-                print(f"\tpassword error: {password_errors[error]}")
+            handle_errors(password_errors, "auth_serv.register_user")
             return None  # Code should display message on frontend for what errors exist with the password
 
         hashed_password = hash_password(password)  # Hash the password to store in database
@@ -55,8 +56,7 @@ class AuthService:
         try:
             password_errors = validate_password(new_password)
             if password_errors:
-                for error in password_errors:
-                    print(f"password error: {password_errors[error]}")
+                handle_errors(password_errors, "auth_serv.change_password")
                 print("CHANGE PASSWORD FAILED:")
                 return False
 

@@ -1,6 +1,7 @@
 from sqlite3 import IntegrityError
 from backend.repositories.transaction_repository import TransactionRepository
 from backend.models.enums import IncomeOrExpense
+from backend.utils.error_utils import handle_errors
 
 class TransactionService:
     def __init__(self, session):
@@ -9,10 +10,8 @@ class TransactionService:
     def create_transaction(self, user, amount, type, date, category_id, description):
         validation_errors = validate_transaction(amount, type, date, category_id, description)
         if validation_errors:
-            print("trans_serv.create_trans: Transaction validation failed, see following errors:")
-            for error in validation_errors:
-                print(f"\t{validation_errors[error]}")
-            return False # print some message to frontend
+            handle_errors(validation_errors, "trans_serv.create_trans")
+            return False
         try:
             # Change datatype of 'type' to enum from string
             trans_type = to_enum(type)
@@ -45,9 +44,7 @@ class TransactionService:
         # Check that transaction fields are valid
         validation_errors = validate_transaction(amount, type, date, category_id, description)
         if validation_errors:
-            print("trans_serv.modify_trans: Transaction validation failed, see following errors:")
-            for error in validation_errors:
-                print(f"\t{validation_errors[error]}")
+            handle_errors(validation_errors, "trans_serv.modify_trans")
             return False
         try:
             self.repo.modify_transaction(transaction, amount, type, date, category_id, description)
