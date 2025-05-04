@@ -8,6 +8,7 @@ class AuthService:
     def __init__(self, session):
         self.repo = AuthRepository(session)
 
+    # returns user on success, None on failure
     def register_user(self, username, password):
         # Check that username fits requirements. Uniqueness is checked when adding user to database via catching DuplicateUsernameError
         username_errors = validate_username(username)
@@ -15,43 +16,47 @@ class AuthService:
         password_errors = validate_password(password)
 
         if username_errors:
-            print("username error")
-            return False  # Code should display message on frontend for what errors exist with the username
+            for error in username_errors:
+                print(f"\tusername error: {username_errors[error]}")
+            return None  # Code should display message on frontend for what errors exist with the username
 
         if password_errors:
             for error in password_errors:
-                print(f"password error: {error}")
-            return False  # Code should display message on frontend for what errors exist with the password
+                print(f"\tpassword error: {password_errors[error]}")
+            return None  # Code should display message on frontend for what errors exist with the password
 
         hashed_password = hash_password(password)  # Hash the password to store in database
         print("preparing to create user")
         try:
-            self.repo.create_user(username, hashed_password)
-            print("created user")
-            return True
+            new_user = self.repo.create_user(username, hashed_password)
+            print(f"created user: {username}")
+            return new_user
         except IntegrityError:
             print("user already exists")
-            return False
+            return None
 
+    # returns user on success, None on failure
     def login_user(self, username, password):
         try:
-            print("logging in")
+            print(f"logging in as: {username}")
             user = self.repo.find_user(username)
             if user and user.password_hash == hash_password(password):
-                print("logged in")
+                print(f"logged in as: {username}")
                 return user
             else:
-                print("login failed")
+                print(f"login failed for: {username}")
                 return None
         except Exception as e:
             print(f"login error: {e}")
+            return None
 
+    # returns boolean
     def change_password(self, username, new_password):
         try:
             password_errors = validate_password(new_password)
             if password_errors:
                 for error in password_errors:
-                    print(f"password error: {error}")
+                    print(f"password error: {password_errors[error]}")
                 print("CHANGE PASSWORD FAILED:")
                 return False
 
@@ -62,7 +67,9 @@ class AuthService:
             return True
         except Exception as e:
             print(f"changing password error: {e}")
+            return False
 
+    # returns boolean
     def delete_user(self, username, password):
         try:
             user = self.repo.find_user(username)
@@ -74,10 +81,13 @@ class AuthService:
                 if user.password_hash == hashed_password:
                     self.repo.delete_user(user)
                     print("deleted user")
+                    return True
                 else:
                     print("DELETE FAILED: password does not match")
+                    return False
         except Exception as e:
             print(f"deletion error: {e}")
+            return False
 
 # Look up hashing algorithm for passwords
 def hash_password(password):

@@ -1,11 +1,7 @@
-import enum
-
 from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, Enum
+from sqlalchemy.orm import relationship
 from backend.database import Base
-
-class IncomeOrExpense(enum.Enum):
-    INCOME = "Income"
-    EXPENSE = "Expense"
+from backend.models.enums import IncomeOrExpense
 
 class Transaction(Base):
     __tablename__ = "transactions"
@@ -15,7 +11,7 @@ class Transaction(Base):
     amount = Column(Float, nullable=False)
     type = Column(Enum(IncomeOrExpense), nullable=False) # Either Income or Expense
     date = Column(DateTime, nullable=False)
-    category = Column(Integer, nullable=False) # Category for income, using category Id from Category
+    category_id = Column(Integer, nullable=False) # Category for income, using category Id from Category
     description = Column(String, nullable=True) # Optional description for transaction
+    user = relationship("User", back_populates="transactions")
 
-    # relationship() w/ user table
