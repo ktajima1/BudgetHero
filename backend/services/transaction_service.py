@@ -12,18 +12,18 @@ class TransactionService:
     def __init__(self, session):
         self.repo = TransactionRepository(session)
 
-    def create_transaction(self, user: User, amount: float, type: str, date: datetime, category_id: int, description: str) -> Transaction | None:
-        validation_errors = validate_transaction(user, amount, type, date, category_id, description)
+    def create_transaction(self, user: User, amount: float, type_str: str, date: datetime, category_id: int, description: str) -> Transaction | None:
+        validation_errors = validate_transaction(user, amount, type_str, date, category_id, description)
         if validation_errors:
             handle_errors(validation_errors, "trans_serv.create_trans")
             return None
         try:
             # Change datatype of 'type' to enum from string
-            trans_type = to_enum(type)
-            if trans_type is None:
-                print(f"trans_serv.create_trans: something went wrong, invalid transaction type: {type}")
+            type_enum = to_enum(type_str)
+            if type_enum is None:
+                print(f"trans_serv.create_trans: something went wrong, invalid transaction type: {type_enum}")
                 return None
-            new_transaction = self.repo.create_transaction(user, amount, trans_type, date, category_id, description)
+            new_transaction = self.repo.create_transaction(user, amount, type_enum, date, category_id, description)
             self.repo.commit() # Commit changes
             print(f"trans_serv.create_trans: Created transaction successfully: {new_transaction.id}")
             return new_transaction
@@ -51,14 +51,14 @@ class TransactionService:
             print(f"trans_serv.del_trans: Transaction could not be deleted: {e}")
             return False
 
-    def modify_transaction(self, transaction: Transaction, amount: float, type: IncomeOrExpense, date: datetime, category_id: int, description: str) -> bool:
+    def modify_transaction(self, transaction: Transaction, amount: float, type_enum: IncomeOrExpense, date: datetime, category_id: int, description: str) -> bool:
         # Check that transaction fields are valid
-        validation_errors = validate_transaction(amount, type, date, category_id, description)
+        validation_errors = validate_transaction(amount, type_enum, date, category_id, description)
         if validation_errors:
             handle_errors(validation_errors, "trans_serv.modify_trans")
             return False
         try:
-            self.repo.modify_transaction(transaction, amount, type, date, category_id, description)
+            self.repo.modify_transaction(transaction, amount, type_enum, date, category_id, description)
             self.repo.commit()  # Commit changes
             print("trans_serv.modify_trans: Transaction successfully updated.")
             return True
@@ -104,7 +104,7 @@ class TransactionService:
 
 # Helper methods
 
-def validate_transaction(user: User, amount: float, type: str, date: datetime, category_id: int, description: str) -> Dict[str, str]:
+def validate_transaction(user: User, amount: float, type_str: str, date: datetime, category_id: int, description: str) -> Dict[str, str]:
     errors = {}
     if user is None:
         errors["user"] = f"User is invalid"
@@ -112,15 +112,15 @@ def validate_transaction(user: User, amount: float, type: str, date: datetime, c
     if amount < 0:
         errors['amount'] = "Amount cannot be negative."
     # Type must be either INCOME or EXPENSE
-    if type.lower() not in ['income', 'expense']:
-        errors['type'] = "Unknown type: " + type.upper()
+    if type_str.lower() not in ['income', 'expense']:
+        errors['type'] = "Unknown type: " + type_str.upper()
     #     Add more validation checks if necessary
     return errors if errors else None
 
-def to_enum(type: str) -> IncomeOrExpense | None:
-    trans_type = None
-    if type.lower() == "income":
-        trans_type = IncomeOrExpense.INCOME
-    if type.lower() == "expense":
-        trans_type = IncomeOrExpense.EXPENSE
-    return trans_type
+def to_enum(type_str: str) -> IncomeOrExpense | None:
+    type_enum = None
+    if type_str.lower() == "income":
+        type_enum = IncomeOrExpense.INCOME
+    if type_str.lower() == "expense":
+        type_enum = IncomeOrExpense.EXPENSE
+    return type_enum

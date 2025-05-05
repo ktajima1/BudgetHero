@@ -1,7 +1,10 @@
 from backend.database import Base
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, String, DateTime, Float
 
 class ConversionRate(Base):
-    __tablename__ = "exchange_rates"
+    __tablename__ = "conversion_rates"
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    base_currency = Column(String, primary_key=True)
+    target_currency = Column(String, primary_key=True)
+    date = Column(DateTime, primary_key=True)
+    rate = Column(Float, nullable=False)

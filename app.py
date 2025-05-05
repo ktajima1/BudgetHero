@@ -46,7 +46,7 @@ if __name__ == "__main__":
         print("t2list:")
         filters = {
             "id" : None,
-            "type": IncomeOrExpense.INCOME,
+            "type_enum": IncomeOrExpense.INCOME,
             "category": None,
             "min_amount": None,
             "max_amount": None,

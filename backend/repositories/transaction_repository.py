@@ -16,11 +16,11 @@ class TransactionRepository():
     def commit(self):
         self.session.commit()
 
-    def create_transaction(self, user: User, amount: float, type: IncomeOrExpense, date: datetime, category_id: int, description: str) -> Transaction:
+    def create_transaction(self, user: User, amount: float, type_enum: IncomeOrExpense, date: datetime, category_id: int, description: str) -> Transaction:
         transaction = Transaction(
             user_id=user.id,
             amount=amount,
-            type=type,
+            type=type_enum,
             date=date, category_id=category_id,
             description=description
         )
@@ -35,13 +35,13 @@ class TransactionRepository():
     def delete_transaction(self, transaction: Transaction):
         self.session.delete(transaction)
 
-    def modify_transaction(self, transaction: Transaction, amount: float, type: IncomeOrExpense, date: datetime, category_id: int, description: str):
+    def modify_transaction(self, transaction: Transaction, amount: float, type_enum: IncomeOrExpense, date: datetime, category_id: int, description: str):
         # How do i want to  do this? i want to make it so that the "Amount", "Type", "Category" and "Description" fields of the transaction can be modified and then committed
         # Should i reserve this method to be used w/ a button that allows
         if amount is not None:
             transaction.amount = amount
-        if type is not None:
-            transaction.type = type
+        if type_enum is not None:
+            transaction.type = type_enum
         if date is not None:
             transaction.date = date
         if category_id is not None:
@@ -63,8 +63,8 @@ class TransactionRepository():
 
         # filter by type (income or expense)
         # note: filter['type'] should be an IncomeOrExpense ENUM value
-        if 'type' in filters and filters['type'] is not None:
-            query = query.filter(Transaction.type == filters['type'])
+        if 'type_enum' in filters and filters['type_enum'] is not None:
+            query = query.filter(Transaction.type == filters['type_enum'])
 
         # filter by category (note, filters['category'] must contain category_id
         if 'category' in filters and filters['category'] is not None:
