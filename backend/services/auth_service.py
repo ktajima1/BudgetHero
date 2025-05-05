@@ -1,4 +1,5 @@
-from sqlite3 import IntegrityError
+import sqlite3
+from sqlalchemy.exc import IntegrityError
 from backend.repositories.auth_repository import AuthRepository
 from backend.errors import InvalidPasswordError
 
@@ -32,7 +33,7 @@ class AuthService:
             new_user = self.repo.create_user(username, hashed_password)
             print(f"created user: {username}")
             return new_user
-        except IntegrityError:
+        except (IntegrityError, sqlite3.IntegrityError):
             print("user already exists")
             return None
 

@@ -1,12 +1,24 @@
-from backend.models import transaction
+from datetime import datetime
+from typing import Any, List, Dict
+
+from backend.models.enums import IncomeOrExpense
 from backend.models.transaction import Transaction
 from sqlalchemy import or_, func
+
+from backend.models.user import User
+
 
 class TransactionRepository():
     def __init__(self, session):
         self.session = session
 
-    def create_transaction(self, user, amount, type, date, category_id, description):
+    def rollback(self):
+        self.session.rollback()
+
+    def commit(self):
+        self.session.commit()
+
+    def create_transaction(self, user: User, amount: float, type: IncomeOrExpense, date: datetime, category_id: int, description: str) -> Transaction:
         transaction = Transaction(
             user_id=user.id,
             amount=amount,
@@ -15,7 +27,6 @@ class TransactionRepository():
             description=description
         )
         self.session.add(transaction)
-        self.session.commit()
         # find user
         # connect to transaction db using user id
         # create a transaction using amount, type (income or expense), category
@@ -23,11 +34,10 @@ class TransactionRepository():
         # create and commit transaction
         return transaction
 
-    def delete_transaction(self, transaction):
+    def delete_transaction(self, transaction: Transaction):
         self.session.delete(transaction)
-        self.session.commit()
 
-    def modify_transaction(self, transaction, amount, type, date, category_id, description):
+    def modify_transaction(self, transaction: Transaction, amount: float, type: IncomeOrExpense, date: datetime, category_id: int, description: str):
         # How do i want to  do this? i want to make it so that the "Amount", "Type", "Category" and "Description" fields of the transaction can be modified and then committed
         # Should i reserve this method to be used w/ a button that allows
         if amount is not None:
@@ -40,19 +50,19 @@ class TransactionRepository():
             transaction.category_id = category_id
         if description is not None:
             transaction.description = description
-        self.session.commit()
-        print(f"Updated transaction {transaction.id}")
+        print(f"[trans_repo.modify_trans]: Updated transaction {transaction.id}")
 
-    def get_transactions(self, user, filters):
+    def get_transactions(self, user: User, filters: Dict[str, Any]) -> List[Transaction]:
         # return specific transactions that match the criteria
         # initially get full all transactions for user
         query = self.session.query(Transaction).filter_by(user_id=user.id)
 
         # filter by transaction id
         # Note: filtering by transaction id is a direct search for a specific id
-        #       and will return a single transaction
+        # and will return a single transaction
         if 'id' in filters and filters['id'] is not None:
             query = query.filter_by(id=filters['id'])
+
         # filter by type (income or expense)
         # note: filter['type'] should be an IncomeOrExpense ENUM value
         if 'type' in filters and filters['type'] is not None:
@@ -76,7 +86,7 @@ class TransactionRepository():
         print("trans_repo.get_trans: returning transactions that match filters")
         return query.all()
 
-    def get_all_transactions(self, user):
+    def get_all_transactions(self, user: User) -> List[Transaction]:
         #  just return all transactions
         all_transactions = self.session.query(Transaction).filter_by(user_id=user.id).all()  # Does this return a list?
         print("Returning all transactions")

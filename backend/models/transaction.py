@@ -11,7 +11,9 @@ class Transaction(Base):
     amount = Column(Float, nullable=False)
     type = Column(Enum(IncomeOrExpense), nullable=False) # Either Income or Expense
     date = Column(DateTime, nullable=False)
-    category_id = Column(Integer, nullable=False) # Category for income, using category Id from Category
+    category_id = Column(Integer, ForeignKey('categories.id'), nullable=False) # Category for income, using category Id from Category
     description = Column(String, nullable=True) # Optional description for transaction
+
     user = relationship("User", back_populates="transactions")
+    category = relationship("Category", back_populates="transactions")
 
