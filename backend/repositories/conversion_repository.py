@@ -1,8 +1,7 @@
+from backend.models.conversion_rate import ConversionRate
 from datetime import datetime
 
-from backend.models.conversion_rate import ConversionRate
-
-class CurrencyRepository():
+class ConversionRepository():
     def __init__(self, session):
         self.session = session
 
@@ -32,14 +31,8 @@ class CurrencyRepository():
         conv_rate.rate = new_rate
         print(f"[curr_repo.delete_rate]: changed rate for [{conv_rate.base_currency} : {conv_rate.target_currency}] from '{old_rate}' to '{new_rate}'")
 
-    def get_rate(self, base_currency: str, target_currency: str, date: datetime) -> ConversionRate:
+    def get_rate(self, base_currency: str, target_currency: str, date: datetime) -> ConversionRate | None:
         return self.session.query(ConversionRate).filter(ConversionRate.base_currency == base_currency,
                                                          ConversionRate.target_currency == target_currency,
                                                          ConversionRate.date == date
                                                          ).first()
-
-    def get_details(self, conv_rate: ConversionRate):
-        print(f"Base Currency: {conv_rate.base_currency}"
-              f"Target Currency: {conv_rate.target_currency}"
-              f"Date: {conv_rate.date}"
-              f"Rate: {conv_rate.rate}")

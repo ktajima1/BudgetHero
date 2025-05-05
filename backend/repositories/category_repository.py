@@ -31,12 +31,12 @@ class CategoryRepository():
             category.description = description
         print(f"[cat_repo.modify_cat]: Updated category [{category.id}; {category.category_name}]")
 
-    def get_category_by_id(self, category_id) -> Category:
+    def get_category_by_id(self, category_id) -> Category | None:
         # This returns exactly 1 query searched by ID
         query = self.session.query(Category).filter_by(id=category_id).first()
         return query
 
-    def get_category_by_name(self, name: str) -> List[Category]:
+    def get_category_by_name(self, name: str) -> List[Category] | []:
         # This returns a list of categories with exact match
         # query = self.session.query(Category).filter_by(category_name=name).all()
         # This returns a list of categories whose names contain name as substring
@@ -44,7 +44,7 @@ class CategoryRepository():
         print(f"[cat_repo.get_cat]: Retrieved categories with substring [{name}]")
         return query
 
-    def get_all_categories(self) -> List[Category]:
+    def get_all_categories(self) -> List[Category] | []:
         query = self.session.query(Category).all()
         print(f"[cat_repo.get_all_cat]: Retrieved all categories")
         return query

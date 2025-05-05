@@ -1,6 +1,6 @@
 from backend.models.user import User
 
-class AuthRepository():
+class UserRepository():
     def __init__(self, session):
         self.session = session
 

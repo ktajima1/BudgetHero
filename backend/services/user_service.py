@@ -1,14 +1,14 @@
 from backend.models.user import User
-from backend.repositories.user_repository import AuthRepository
+from backend.repositories.user_repository import UserRepository
 from backend.utils.error_utils import handle_errors
 import sqlite3
 from sqlalchemy.exc import IntegrityError
 from typing import Dict
 import re
 
-class AuthService:
+class UserService:
     def __init__(self, session):
-        self.repo = AuthRepository(session)
+        self.repo = UserRepository(session)
 
     # returns user on success, None on failure
     def register_user(self, username: str, password: str) -> User | None:
