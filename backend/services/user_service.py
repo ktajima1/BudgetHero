@@ -1,16 +1,10 @@
-import sqlite3
-from typing import Dict
-
-from sqlalchemy.exc import IntegrityError
-
 from backend.models.user import User
-from backend.repositories.auth_repository import AuthRepository
-from backend.errors import InvalidPasswordError
-
-import re
-
+from backend.repositories.user_repository import AuthRepository
 from backend.utils.error_utils import handle_errors
-
+import sqlite3
+from sqlalchemy.exc import IntegrityError
+from typing import Dict
+import re
 
 class AuthService:
     def __init__(self, session):

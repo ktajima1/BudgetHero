@@ -1,11 +1,9 @@
-import sqlite3
-from sqlalchemy.exc import IntegrityError
-
-from typing import Dict, List
-
 from backend.models.category import Category
 from backend.repositories.category_repository import CategoryRepository
 from backend.utils.error_utils import handle_errors
+import sqlite3
+from sqlalchemy.exc import IntegrityError
+from typing import Dict, List
 
 class CategoryService:
     def __init__(self, session):

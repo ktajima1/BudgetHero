@@ -1,4 +1,3 @@
-
 # Usernames must be unique
 class DuplicateUsernameError(Exception):
     def __init__(self, message, error_code):

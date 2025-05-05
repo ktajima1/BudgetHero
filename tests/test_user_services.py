@@ -6,7 +6,7 @@ from backend.database import initialize_database, get_session
 from backend.models.user import User
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base, session
-from backend.services.auth_service import AuthService
+from backend.services.user_service import AuthService
 
 
 #

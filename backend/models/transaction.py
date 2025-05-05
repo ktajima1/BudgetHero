@@ -1,7 +1,7 @@
+from backend.database import Base
+from backend.utils.enums import IncomeOrExpense
 from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, Enum
 from sqlalchemy.orm import relationship
-from backend.database import Base
-from backend.models.enums import IncomeOrExpense
 
 class Transaction(Base):
     __tablename__ = "transactions"

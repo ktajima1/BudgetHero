@@ -1,11 +1,9 @@
+from backend.utils.enums import IncomeOrExpense
+from backend.models.transaction import Transaction
+from backend.models.user import User
+from sqlalchemy import or_, func
 from datetime import datetime
 from typing import Any, List, Dict
-
-from backend.models.enums import IncomeOrExpense
-from backend.models.transaction import Transaction
-from sqlalchemy import or_, func
-
-from backend.models.user import User
 
 
 class TransactionRepository():

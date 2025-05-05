@@ -1,7 +1,7 @@
-from sqlalchemy import Column, Integer, String
 from backend.database import Base
+from sqlalchemy import Column, Integer, String
 
-class Exchange_Rate(Base):
+class ConversionRate(Base):
     __tablename__ = "exchange_rates"
 
     id = Column(Integer, primary_key=True, autoincrement=True)

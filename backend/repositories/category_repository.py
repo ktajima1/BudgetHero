@@ -1,6 +1,5 @@
-from typing import List
-
 from backend.models.category import Category
+from typing import List
 
 class CategoryRepository():
     def __init__(self, session):

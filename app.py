@@ -1,9 +1,9 @@
 from backend.database import initialize_database, get_session
-from backend.services.auth_service import AuthService
+from backend.services.user_service import AuthService
 from backend.services.transaction_service import TransactionService
 from backend.services.category_service import CategoryService
 from datetime import datetime
-from backend.models.enums import IncomeOrExpense
+from backend.utils.enums import IncomeOrExpense
 
 if __name__ == "__main__":
     initialize_database()
