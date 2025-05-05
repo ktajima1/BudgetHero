@@ -1,5 +1,9 @@
 import sqlite3
+from typing import Dict
+
 from sqlalchemy.exc import IntegrityError
+
+from backend.models.user import User
 from backend.repositories.auth_repository import AuthRepository
 from backend.errors import InvalidPasswordError
 
@@ -13,7 +17,7 @@ class AuthService:
         self.repo = AuthRepository(session)
 
     # returns user on success, None on failure
-    def register_user(self, username, password):
+    def register_user(self, username: str, password: str) -> User | None:
         # Check that username fits requirements. Uniqueness is checked when adding user to database via catching DuplicateUsernameError
         username_errors = validate_username(username)
         # Check that password fits requirements
@@ -31,14 +35,16 @@ class AuthService:
         print("preparing to create user")
         try:
             new_user = self.repo.create_user(username, hashed_password)
+            self.repo.commit()
             print(f"created user: {username}")
             return new_user
         except (IntegrityError, sqlite3.IntegrityError):
             print("user already exists")
+            self.repo.rollback()
             return None
 
     # returns user on success, None on failure
-    def login_user(self, username, password):
+    def login_user(self, username: str, password: str) -> User | None:
         try:
             print(f"logging in as: {username}")
             user = self.repo.find_user(username)
@@ -53,17 +59,17 @@ class AuthService:
             return None
 
     # returns boolean
-    def change_password(self, username, new_password):
+    def change_password(self, username: str, new_password: str) -> bool:
         try:
             password_errors = validate_password(new_password)
             if password_errors:
                 handle_errors(password_errors, "auth_serv.change_password")
                 print("CHANGE PASSWORD FAILED:")
                 return False
-
             user = self.repo.find_user(username)
             new_hashed_password = hash_password(new_password)
             self.repo.change_password(user, new_hashed_password)
+            self.repo.commit()
             print("CHANGE PASSWORD SUCCESSFUL")
             return True
         except Exception as e:
@@ -71,7 +77,7 @@ class AuthService:
             return False
 
     # returns boolean
-    def delete_user(self, username, password):
+    def delete_user(self, username: str, password: str) -> bool:
         try:
             user = self.repo.find_user(username)
             if user is None:
@@ -81,6 +87,7 @@ class AuthService:
                 hashed_password = hash_password(password)
                 if user.password_hash == hashed_password:
                     self.repo.delete_user(user)
+                    self.repo.commit()
                     print("deleted user")
                     return True
                 else:
@@ -91,12 +98,12 @@ class AuthService:
             return False
 
 # Look up hashing algorithm for passwords
-def hash_password(password):
+def hash_password(password: str) -> str:
     return password + "hashed"
 
 # Username requirements:
 #   - Must be 4 or more characters long
-def validate_username(username):
+def validate_username(username: str) -> Dict[str,str]:
     errors = {}
     if len(username) < 4:
         errors["length"] = "Username must be at least 4 characters long"
@@ -108,7 +115,7 @@ def validate_username(username):
 # - 1 number
 # - 1 symbol
 # - 8 or more characters
-def validate_password(password):
+def validate_password(password: str) -> Dict[str,str]:
     errors = {}
     if len(password) < 8:
         errors["length"] = "Password must be at least 8 characters long"
