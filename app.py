@@ -17,6 +17,16 @@ if __name__ == "__main__":
         # Syntax: datetime(year, month, day, hour=0, minute=0, second=0)
         dt = datetime(2024, 12, 25, 14, 30, 0)  # Dec 25, 2024 at 2:30 PM
 
+        user1 = user_service.login_user("user1", "11111P@ss")
+        print(user_service.get_current_balance(user1))
+
+        trans_list = transaction_service.get_all_transactions(user1)
+        print(transaction_service.get_details(trans_list[0]))
+        transaction_service.delete_transaction(trans_list[0])
+
+        print(user_service.get_current_balance(user1))
+
+
         # conversion_service.log_rate("USD", "JPY", dt, 1.0)
         # tr = conversion_service.get_rate("USD", "JPY", dt)
         # print(conversion_service.get_details(tr))
@@ -25,14 +35,14 @@ if __name__ == "__main__":
         # print(f"Requested rate: {conversion_service.get_rate("USD", "JPY", dt).rate}")
         # conversion_service.delete_rate(tr)
 
-        tr = conversion_service.get_rate("STD", "JPY", dt)
-        print(conversion_service.get_details(tr))
+        # tr = conversion_service.get_rate("STD", "JPY", dt)
+        # print(conversion_service.get_details(tr))
 
         # # status1 = auth_service.delete_user("admin", "12345L@w")
         # # status2 = auth_service.delete_user("admin", "10936S@n")
         # # user1 = auth_service.register_user("admin", "10936S@n")
-        # # user2 = auth_service.login_user("admin", "10936S@n")
-        # # user3 = auth_service.login_user("admin", "12345L@w")
+        # user2 = auth_service.login_user("admin", "10936S@n")
+        # user3 = auth_service.login_user("admin", "12345L@w")
         # # status3 = auth_service.change_password("admin", "12345L@w")
         # user5 = user_service.login_user("admin", "10936S@n")
         # # user5 = auth_service.login_user("mod", "12345L@w")

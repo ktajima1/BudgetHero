@@ -45,17 +45,20 @@ class TransactionService:
             print(f"trans_serv.create_trans: Unknown error: {e}")
             return None
 
-        # find user
-        # connect to transaction db using user id
-        # create a transaction using amount, type (income or expense), category
-        # if: description, add description.
-        # create and commit transaction
-
     def delete_transaction(self, transaction: Transaction) -> bool:
         try:
             self.repo.delete_transaction(transaction)
             self.repo.commit()  # Commit changes
             print("trans_serv.del_trans: Transaction successfully deleted.")
+            if transaction.type == IncomeOrExpense.INCOME:
+                update_type = IncrementOrDecrement.DECREMENT
+                self.update_balance(transaction.user, transaction.amount, update_type)
+            elif transaction.type == IncomeOrExpense.EXPENSE:
+                update_type = IncrementOrDecrement.INCREMENT
+                self.update_balance(transaction.user, transaction.amount, update_type)
+            else:
+                # Logically, the transaction at creation should've already been validated so this code should never be reached
+                print(f"trans_serv.create_trans: Unknown transaction type: {transaction.type}")
             return True
         except Exception as e:
             print(f"trans_serv.del_trans: Transaction could not be deleted: {e}")
@@ -71,6 +74,15 @@ class TransactionService:
             self.repo.modify_transaction(transaction, amount, type_enum, date, category_id, description)
             self.repo.commit()  # Commit changes
             print("trans_serv.modify_trans: Transaction successfully updated.")
+            if type_enum == IncomeOrExpense.INCOME:
+                update_type = IncrementOrDecrement.DECREMENT
+                self.update_balance(transaction.user, transaction.amount, update_type)
+            elif type_enum == IncomeOrExpense.EXPENSE:
+                update_type = IncrementOrDecrement.INCREMENT
+                self.update_balance(transaction.user, transaction.amount, update_type)
+            else:
+                # Logically, the transaction at creation should've already been validated so this code should never be reached
+                print(f"trans_serv.create_trans: Unknown transaction type: {transaction.type}")
             return True
         except Exception as e:
             print(f"trans_serv.modify_trans: Transaction could not be modified: {e}")
