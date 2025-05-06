@@ -20,6 +20,7 @@ class CategoryService:
             lc_category_name = category_name.lower()
             new_category = self.repo.create_category(lc_category_name, description)
             self.repo.commit() # Commit the changes
+            print(f"[cat_serv.create_cat]: Created category [{new_category.id}; {new_category.category_name}]")
             return new_category
         except (IntegrityError, sqlite3.IntegrityError) as e:
             print(f"[cat_serv.create_category]: Category created failed due to IntegrityError: {e}")

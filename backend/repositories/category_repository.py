@@ -17,7 +17,6 @@ class CategoryRepository():
             description=description
         )
         self.session.add(category)
-        print(f"[cat_repo.create_cat]: Created category [{category.id}; {category.category_name}]")
         return category
 
     def delete_category(self, category: Category):

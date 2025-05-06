@@ -26,4 +26,5 @@ def get_session():
 
 
 def initialize_database():
+    print(f"Connecting to database at {DATABASE_URI}")
     Base.metadata.create_all(bind=engine)
