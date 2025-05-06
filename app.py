@@ -17,13 +17,16 @@ if __name__ == "__main__":
         # Syntax: datetime(year, month, day, hour=0, minute=0, second=0)
         dt = datetime(2024, 12, 25, 14, 30, 0)  # Dec 25, 2024 at 2:30 PM
 
-        conversion_service.log_rate("USD", "JPY", dt, 1.0)
-        tr = conversion_service.get_rate("USD", "JPY", dt)
+        # conversion_service.log_rate("USD", "JPY", dt, 1.0)
+        # tr = conversion_service.get_rate("USD", "JPY", dt)
+        # print(conversion_service.get_details(tr))
+        # print(f"Requested rate: {conversion_service.get_rate("USD", "JPY", dt).rate}")
+        # conversion_service.change_rate(tr, 2.2)
+        # print(f"Requested rate: {conversion_service.get_rate("USD", "JPY", dt).rate}")
+        # conversion_service.delete_rate(tr)
+
+        tr = conversion_service.get_rate("STD", "JPY", dt)
         print(conversion_service.get_details(tr))
-        print(f"Requested rate: {conversion_service.get_rate("USD", "JPY", dt).rate}")
-        conversion_service.change_rate(tr, 2.2)
-        print(f"Requested rate: {conversion_service.get_rate("USD", "JPY", dt).rate}")
-        conversion_service.delete_rate(tr)
 
         # # status1 = auth_service.delete_user("admin", "12345L@w")
         # # status2 = auth_service.delete_user("admin", "10936S@n")

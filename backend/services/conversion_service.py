@@ -21,8 +21,16 @@ class ConversionService:
                 return conv_rate
             else: # Fallback to API
                 print(f"[conv_serv.get_rate]: Rate does not exist in DB, fetching from API")
-                get_rate_from_API(base_currency, target_currency, date)
+                requested_rate = get_rate_from_API(base_currency, target_currency, date)
+                if requested_rate is not None:
+                    print(f"\t[conv_serv.get_rate]: Rate received from API, logging into DB")
+                    new_conv_rate = self.log_rate(base_currency, target_currency, date, requested_rate)
+                    return new_conv_rate
                 return None
+        except (IntegrityError, sqlite3.IntegrityError) as e:
+            print(f"[conv_serv.get_rate]: Rate creation from API failed due to IntegrityError: {e}")
+            self.repo.rollback()  # Rollback changes to refresh session
+            return None
         except Exception as e:
             print(f"[conv_serv.get_rate]: something went wrong: {e}")
             return None
