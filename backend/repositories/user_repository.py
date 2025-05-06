@@ -11,7 +11,9 @@ class UserRepository():
         self.session.commit()
 
     def create_user(self, username: str, hashed_password: str) -> User:
-        user = User(username=username, password_hash=hashed_password)
+        user = User(username=username,
+                    password_hash=hashed_password,
+                    account_balance=0)
         self.session.add(user)
         return user
 
@@ -20,6 +22,12 @@ class UserRepository():
 
     def delete_user(self, user: User):
         self.session.delete(user)
+
+    def get_current_balance(self, user: User) -> float:
+        return user.account_balance
+
+    def change_balance(self, user: User, balance: float):
+        user.account_balance = balance
 
     def change_password(self, user: User, new_hashed_password: str):
         user.password_hash = new_hashed_password

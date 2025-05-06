@@ -1,7 +1,8 @@
 from backend.repositories.transaction_repository import TransactionRepository
 from backend.models.transaction import Transaction
 from backend.models.user import User
-from backend.utils.enums import IncomeOrExpense
+from backend.services.user_service import UserService
+from backend.utils.enums import IncomeOrExpense, IncrementOrDecrement
 from backend.utils.error_utils import handle_errors
 import sqlite3
 from sqlalchemy.exc import IntegrityError
@@ -11,6 +12,7 @@ from typing import List, Dict, Any
 class TransactionService:
     def __init__(self, session):
         self.repo = TransactionRepository(session)
+        self.user_serv = UserService(session)
 
     def create_transaction(self, user: User, amount: float, type_str: str, date: datetime, category_id: int, description: str) -> Transaction | None:
         validation_errors = validate_transaction(user, amount, type_str, date, category_id, description)
@@ -25,7 +27,15 @@ class TransactionService:
                 return None
             new_transaction = self.repo.create_transaction(user, amount, type_enum, date, category_id, description)
             self.repo.commit() # Commit changes
-            print(f"trans_serv.create_trans: Created transaction successfully: {new_transaction.id}")
+
+            if new_transaction is not None:
+                print(f"trans_serv.create_trans: Created transaction successfully: {new_transaction.id}")
+                if type_enum == IncomeOrExpense.INCOME:
+                    update_type = IncrementOrDecrement.INCREMENT
+                    self.update_balance(user, amount, update_type) # Increment user balance after transaction creation
+                elif type_enum == IncomeOrExpense.EXPENSE:
+                    update_type = IncrementOrDecrement.DECREMENT
+                    self.update_balance(user, amount, update_type) # Decrement user balance after transaction creation
             return new_transaction
         except (IntegrityError, sqlite3.IntegrityError) as e:
             print(f"trans_serv.create_trans: Transaction already exists: {e}")
@@ -101,6 +111,11 @@ class TransactionService:
                 f"Date: {transaction.date}, "
                 f"Category: {transaction.category_id}, "
                 f"Description: {transaction.description}")
+
+    def update_balance(self, user: User, amount: float, update_type: IncrementOrDecrement):
+        print(f"[trans_serv.update_balance]: Updating balance by: {amount}")
+        self.user_serv.update_balance(user, amount, update_type) # Update balance in user after transaction creation/deletion/modification
+
 
 # Helper methods
 

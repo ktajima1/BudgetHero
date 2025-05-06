@@ -38,7 +38,7 @@ if __name__ == "__main__":
     initialize_database()
     with get_session() as session:
         # Dates used to generate random dates
-        start_date = datetime(2022, 12, 25, 14, 30, 0)  # Dec 25, 2020 at 2:30 PM
+        start_date = datetime(2023, 12, 25, 14, 30, 0)  # Dec 25, 2020 at 2:30 PM
         end_date = datetime(2024, 12, 25, 14, 30, 0)  # Dec 25, 2024 at 2:30 PM
         date_range = (start_date, end_date)
 
@@ -65,13 +65,13 @@ if __name__ == "__main__":
         ex_cat3 = category_service.create_category("Gaming", "Buying games")
 
         # Create ten income transactions and ten expense transactions for each user
-        user1_income_list = generate_transactions(10, user1, (1,250), "INCOME", date_range, (1,3))
-        user1_expense_list = generate_transactions(10, user1, (1, 250), "EXPENSE", date_range, (4, 6))
-        user2_income_list = generate_transactions(10, user2, (1, 250), "INCOME", date_range, (1, 3))
-        user2_expense_list = generate_transactions(10, user2, (1, 250), "EXPENSE", date_range, (4, 6))
-        user3_income_list = generate_transactions(10, user3, (1, 250), "INCOME", date_range, (1, 3))
-        user3_expense_list = generate_transactions(10, user3, (1, 250), "EXPENSE", date_range, (4, 6))
-        user4_income_list = generate_transactions(10, user4, (1, 250), "INCOME", date_range, (1, 3))
-        user4_expense_list = generate_transactions(10, user4, (1, 250), "EXPENSE", date_range, (4, 6))
-        user5_income_list = generate_transactions(10, user5, (1, 250), "INCOME", date_range, (1, 3))
-        user5_expense_list = generate_transactions(10, user5, (1, 250), "EXPENSE", date_range, (4, 6))
+        user1_income_list = generate_transactions(20, user1, (50,150), "INCOME", date_range, (1,3))
+        user1_expense_list = generate_transactions(10, user1, (50,150), "EXPENSE", date_range, (4, 6))
+        user2_income_list = generate_transactions(20, user2, (50,150), "INCOME", date_range, (1, 3))
+        user2_expense_list = generate_transactions(10, user2, (50,150), "EXPENSE", date_range, (4, 6))
+        user3_income_list = generate_transactions(20, user3, (50,150), "INCOME", date_range, (1, 3))
+        user3_expense_list = generate_transactions(10, user3, (50,150), "EXPENSE", date_range, (4, 6))
+        user4_income_list = generate_transactions(20, user4, (50,150), "INCOME", date_range, (1, 3))
+        user4_expense_list = generate_transactions(10, user4, (50,150), "EXPENSE", date_range, (4, 6))
+        user5_income_list = generate_transactions(20, user5, (50,150), "INCOME", date_range, (1, 3))
+        user5_expense_list = generate_transactions(10, user5, (50,150), "EXPENSE", date_range, (4, 6))

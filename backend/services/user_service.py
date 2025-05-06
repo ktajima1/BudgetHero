@@ -1,5 +1,6 @@
 from backend.models.user import User
 from backend.repositories.user_repository import UserRepository
+from backend.utils.enums import IncomeOrExpense, IncrementOrDecrement
 from backend.utils.error_utils import handle_errors
 import sqlite3
 from sqlalchemy.exc import IntegrityError
@@ -51,6 +52,32 @@ class UserService:
         except Exception as e:
             print(f"login error: {e}")
             return None
+
+    def get_current_balance(self, user: User) -> float | None:
+        try:
+            balance = self.repo.get_current_balance(user)
+            print(f"current balance: {balance}")
+            return balance
+        except Exception as e:
+            print(f"get balance error: {e}")
+            return None
+
+    def update_balance(self, user: User, amount: float, update_type: IncrementOrDecrement) -> float:
+        new_balance = current_balance = self.repo.get_current_balance(user)
+        try:
+            if update_type == IncrementOrDecrement.INCREMENT:
+                new_balance = current_balance + amount
+            elif update_type == IncrementOrDecrement.DECREMENT:
+                new_balance = current_balance - amount
+            else:
+                raise Exception(f"[user_serv.update_bal]: Error, unknown type {update_type}")
+            # print(f"[user_serv.update_balance]: Updating balance by: {amount}")
+            self.repo.change_balance(user, new_balance)
+            self.repo.commit()
+            return new_balance
+        except Exception as e:
+            print(f"change balance error: {e}")
+            return current_balance
 
     # returns boolean
     def change_password(self, username: str, new_password: str) -> bool:
