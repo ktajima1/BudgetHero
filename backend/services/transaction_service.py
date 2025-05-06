@@ -14,11 +14,11 @@ class TransactionService:
         self.repo = TransactionRepository(session)
         self.user_serv = UserService(session)
 
-    def create_transaction(self, user: User, amount: float, type_str: str, date: datetime, category_id: int, description: str) -> Transaction | None:
+    def create_transaction(self, user: User, amount: float, type_str: str, date: datetime, category_id: int, description: str) -> Transaction | Dict[str,str] | None:
         validation_errors = validate_transaction(user, amount, type_str, date, category_id, description)
         if validation_errors:
             handle_errors(validation_errors, "trans_serv.create_trans")
-            return None
+            return validation_errors
         try:
             # Change datatype of 'type' to enum from string
             type_enum = to_enum(type_str)
@@ -64,12 +64,12 @@ class TransactionService:
             print(f"trans_serv.del_trans: Transaction could not be deleted: {e}")
             return False
 
-    def modify_transaction(self, transaction: Transaction, amount: float, type_enum: IncomeOrExpense, date: datetime, category_id: int, description: str) -> bool:
+    def modify_transaction(self, transaction: Transaction, amount: float, type_enum: IncomeOrExpense, date: datetime, category_id: int, description: str) -> bool | Dict[str,str]:
         # Check that transaction fields are valid
         validation_errors = validate_transaction(amount, type_enum, date, category_id, description)
         if validation_errors:
             handle_errors(validation_errors, "trans_serv.modify_trans")
-            return False
+            return validation_errors
         try:
             self.repo.modify_transaction(transaction, amount, type_enum, date, category_id, description)
             self.repo.commit()  # Commit changes

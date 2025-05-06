@@ -39,7 +39,7 @@ if __name__ == "__main__":
     with get_session() as session:
         # Dates used to generate random dates
         start_date = datetime(2023, 12, 25, 14, 30, 0)  # Dec 25, 2020 at 2:30 PM
-        end_date = datetime(2024, 12, 25, 14, 30, 0)  # Dec 25, 2024 at 2:30 PM
+        end_date = datetime.now()
         date_range = (start_date, end_date)
 
         # Start services

@@ -35,11 +35,11 @@ class ConversionService:
             print(f"[conv_serv.get_rate]: something went wrong: {e}")
             return None
 
-    def log_rate(self, base_currency: str, target_currency: str, date: datetime, rate: float) -> ConversionRate | None:
+    def log_rate(self, base_currency: str, target_currency: str, date: datetime, rate: float) -> ConversionRate | Dict[str,str] | None:
         validation_errors = validate_rate(base_currency, target_currency, date, rate)
         if validation_errors:
             handle_errors(validation_errors, "conv_serv.log_rate")
-            return None
+            return validation_errors
         try:
             print(f"[conv_serv.log_rate]: Creating rate for [{base_currency} : {target_currency} : {date}]")
             new_rate = self.repo.log_rate(base_currency, target_currency, date, rate)

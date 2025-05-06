@@ -9,11 +9,11 @@ class CategoryService:
     def __init__(self, session):
         self.repo = CategoryRepository(session)
 
-    def create_category(self, category_name: str, description: str) -> Category | None:
+    def create_category(self, category_name: str, description: str) -> Category | Dict[str,str] | None:
         validation_errors = validate_category(category_name, description)
         if validation_errors:
             handle_errors(validation_errors, "cat_serv.create_category")
-            return None
+            return validation_errors
         try:
             print(f"cat_serv.create_category: Running creation of category [{category_name}]")
             # Category names should be case-insensitive
@@ -30,7 +30,11 @@ class CategoryService:
             print(f"[cat_serv.create_category]: Unknown error: {e}")
             return None
 
-    def modify_category(self, category: Category, category_name: str, description: str) -> bool:
+    def modify_category(self, category: Category, category_name: str, description: str) -> bool | Dict[str, str]:
+        validation_errors = validate_category(category_name, description)
+        if validation_errors:
+            handle_errors(validation_errors, "cat_serv.mod_category")
+            return validation_errors
         try:
             print(f"cat_serv.mod_cat: Running modification of category [{category.category_name}]")
             self.repo.modify_category(category, category_name, description)

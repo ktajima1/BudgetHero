@@ -12,7 +12,7 @@ class UserService:
         self.repo = UserRepository(session)
 
     # returns user on success, None on failure
-    def register_user(self, username: str, password: str) -> User | None:
+    def register_user(self, username: str, password: str) -> User | Dict[str,str] | None:
         # Check that username fits requirements. Uniqueness is checked when adding user to database via catching DuplicateUsernameError
         username_errors = validate_username(username)
         # Check that password fits requirements
@@ -20,11 +20,11 @@ class UserService:
 
         if username_errors:
             handle_errors(username_errors, "auth_serv.register_user")
-            return None  # Code should display message on frontend for what errors exist with the username
+            return username_errors
 
         if password_errors:
             handle_errors(password_errors, "auth_serv.register_user")
-            return None  # Code should display message on frontend for what errors exist with the password
+            return password_errors
 
         hashed_password = hash_password(password)  # Hash the password to store in database
         print("preparing to create user")
@@ -80,13 +80,14 @@ class UserService:
             return current_balance
 
     # returns boolean
-    def change_password(self, username: str, new_password: str) -> bool:
+    def change_password(self, username: str, new_password: str) -> bool | Dict[str,str]:
         try:
             password_errors = validate_password(new_password)
             if password_errors:
                 handle_errors(password_errors, "auth_serv.change_password")
                 print("CHANGE PASSWORD FAILED:")
-                return False
+                return password_errors
+
             user = self.repo.find_user(username)
             new_hashed_password = hash_password(new_password)
             self.repo.change_password(user, new_hashed_password)

@@ -4,27 +4,43 @@ from backend.services.transaction_service import TransactionService
 from backend.services.category_service import CategoryService
 from backend.services.conversion_service import ConversionService
 from datetime import datetime
-from backend.utils.enums import IncomeOrExpense
 
-if __name__ == "__main__":
-    initialize_database()
+import tkinter as tk
+from backend.database import get_session
+from frontend.views.login_view import LoginView
+
+def main():
+    root = tk.Tk()
+    root.title("Budget Hero")
+    root.geometry("600x500")
+
     with get_session() as session:
-        user_service = UserService(session)
-        transaction_service = TransactionService(session)
-        category_service = CategoryService(session)
-        conversion_service = ConversionService(session)
+        app = LoginView(root, session)
+        app.pack(fill="both", expand=True)
 
-        # Syntax: datetime(year, month, day, hour=0, minute=0, second=0)
-        dt = datetime(2024, 12, 25, 14, 30, 0)  # Dec 25, 2024 at 2:30 PM
+    root.mainloop()
 
-        user1 = user_service.login_user("user1", "11111P@ss")
-        print(user_service.get_current_balance(user1))
+if __name__ == '__main__':
+    main()
 
-        trans_list = transaction_service.get_all_transactions(user1)
-        print(transaction_service.get_details(trans_list[0]))
-        transaction_service.delete_transaction(trans_list[0])
-
-        print(user_service.get_current_balance(user1))
+    # initialize_database()
+    # with get_session() as session:
+    #     user_service = UserService(session)
+    #     transaction_service = TransactionService(session)
+    #     category_service = CategoryService(session)
+    #     conversion_service = ConversionService(session)
+    #
+    #     # Syntax: datetime(year, month, day, hour=0, minute=0, second=0)
+    #     dt = datetime(2024, 12, 25, 14, 30, 0)  # Dec 25, 2024 at 2:30 PM
+    #
+    #     user1 = user_service.login_user("user1", "11111P@ss")
+    #     print(user_service.get_current_balance(user1))
+    #
+    #     trans_list = transaction_service.get_all_transactions(user1)
+    #     print(transaction_service.get_details(trans_list[0]))
+    #     transaction_service.delete_transaction(trans_list[0])
+    #
+    #     print(user_service.get_current_balance(user1))
 
 
         # conversion_service.log_rate("USD", "JPY", dt, 1.0)
