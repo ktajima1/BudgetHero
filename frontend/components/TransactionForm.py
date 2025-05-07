@@ -1,6 +1,9 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
-from datetime import datetime
+from datetime import datetime, date
+
+from tkcalendar import DateEntry
+
 
 class TransactionForm(ttk.Frame):
     def __init__(self, parent, user, transaction_service, category_service, on_success=None):
@@ -37,7 +40,14 @@ class TransactionForm(ttk.Frame):
 
         # Date
         ttk.Label(self, text="Date (YYYY-MM-DD)").pack()
-        self.date_entry.insert(0, datetime.now().strftime("%Y-%m-%d"))
+        # self.date_entry.insert(0, datetime.now().strftime("%Y-%m-%d"))
+        # self.date_entry.pack()
+        self.date_entry = DateEntry(
+            self,
+            date_pattern='yyyy-mm-dd',
+            maxdate=date.today(),  # Can't select future dates
+            mindate=date(1999, 1, 1)  # Reasonable minimum for currency data
+        )
         self.date_entry.pack()
 
         ttk.Button(self, text="Add Transaction", command=self.add_transaction).pack(pady=10)

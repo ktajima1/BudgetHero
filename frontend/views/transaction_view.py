@@ -15,19 +15,7 @@ class TransactionView(ttk.Frame):
         self.transaction_service = transaction_service
         self.plot_canvas = None
 
-        self.plot_summary()
         self.plot_balance_over_time(last_n_months=2)
-
-    def plot_summary(self):
-        transactions = self.transaction_service.get_all_transactions(self.user)
-        income = sum(t.amount for t in transactions if t.type == IncomeOrExpense.INCOME)
-        expense = sum(t.amount for t in transactions if t.type == IncomeOrExpense.EXPENSE)
-
-        fig, ax = plt.subplots()
-        ax.pie([income, expense], labels=["Income", "Expense"], autopct="%1.1f%%", colors=["green", "red"])
-        ax.set_title("Income vs Expense")
-
-        self._update_plot(fig)
 
     def plot_balance_over_time(self, last_n_months=None):
         initial_balance = self.user.account_balance
@@ -52,7 +40,7 @@ class TransactionView(ttk.Frame):
 
         fig, ax = plt.subplots(figsize=(12, 6))
         ax.plot(df['date'], df['running_balance'], marker='o', color='blue')
-        ax.set_title("Account Balance Over Time")
+        ax.set_title("Account Balance Last Two Months")
         ax.set_xlabel("Date")
         ax.set_ylabel("Balance")
         ax.grid(True)

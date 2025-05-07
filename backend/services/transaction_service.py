@@ -101,6 +101,15 @@ class TransactionService:
             print(f"trans_serv.get_trans: something went wrong: {e}")
             return []
 
+    def get_recent_transactions(self, user: User, limit: int) -> List[Transaction]:
+        try:
+            recent_transactions = self.repo.get_recent_transactions(user, limit)
+            print(f"trans_serv.get_recent_trans: Fetched {len(recent_transactions)} recent transactions.")
+            return recent_transactions
+        except Exception as e:
+            print(f"trans_serv.get_recent_trans: Could not fetch recent transactions: {e}")
+            return []
+
     def get_all_transactions(self, user: User) -> List[Transaction]:
         #  just return all transactions
         try:

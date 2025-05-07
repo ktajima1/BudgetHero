@@ -119,6 +119,17 @@ class UserService:
             print(f"deletion error: {e}")
             return False
 
+    def check_if_user_exists(self, username: str) -> bool:
+        try:
+            user = self.repo.find_user(username)
+            if user is not None:
+                return True
+            else:
+                return False
+        except Exception as e:
+            print(f"get user error: {e}")
+            return False
+
 # Look up hashing algorithm for passwords
 def hash_password(password: str) -> str:
     return password + "hashed"

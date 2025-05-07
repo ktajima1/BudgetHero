@@ -11,5 +11,5 @@ class User(Base):
     password_hash = Column(String(128))
     account_balance = Column(Float, nullable=False)
 
-    transactions = relationship("Transaction", back_populates="user", cascade="all, delete")
+    transactions = relationship("Transaction", back_populates="user", cascade="all, delete-orphan")
 

@@ -1,110 +1,134 @@
-import tkinter as tk
-from tkinter import ttk, messagebox
-
-import pandas as pd
-from dateutil.relativedelta import relativedelta
-
+from backend.database import get_session
+from backend.services.conversion_service import ConversionService
+from backend.services.user_service import UserService
 from backend.services.transaction_service import TransactionService
 from backend.services.category_service import CategoryService
-from backend.utils.enums import IncomeOrExpense
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import matplotlib.pyplot as plt
-from datetime import datetime, timedelta
-import matplotlib.dates as mdates
 
+from frontend.components.RecentTransactions import RecentTransactions
 from frontend.components.TransactionForm import TransactionForm
 from frontend.views.transaction_view import TransactionView
 
+import tkinter as tk
+from tkinter import ttk, messagebox, simpledialog
 
-class DashboardView(ttk.Frame):
+class DashboardView(tk.Frame):
     def __init__(self, parent, session, user):
-        super().__init__(parent)
+        super().__init__(parent, bg="#f0fdf4")  # Light green background
         self.user = user
         self.transaction_service = TransactionService(session)
         self.category_service = CategoryService(session)
+        self.conversion_service = ConversionService(session)
 
-        ttk.Label(self, text=f"Welcome, {user.username}!").pack(pady=5)
+        # Header
+        tk.Label(self, text="Dashboard", font=("Helvetica", 18, "bold"), bg="#f0fdf4").pack(pady=(20, 0))
+        tk.Label(self, text=f"Welcome, {user.username.capitalize()}!", font=("Helvetica", 12), bg="#f0fdf4").pack(pady=(0, 10))
 
-        form_view = TransactionForm(
-            self,
+        # --- Navigation Buttons ---
+        nav_frame = ttk.Frame(self)
+        nav_frame.pack(pady=10)
+
+        ttk.Button(nav_frame, text="Manage Categories", command=self.go_to_categories).pack(side="left", padx=5)
+        ttk.Button(nav_frame, text="View Graphs", command=self.go_to_graphs).pack(side="left", padx=5)
+        ttk.Button(nav_frame, text="Currency Converter", command=self.go_to_currency_converter).pack(side="left", padx=5)
+        ttk.Button(nav_frame, text="Delete Account", command=self.delete_account).pack(side="left", padx=5)
+        # Log Out button
+        ttk.Button(self, text="Log Out", command=self.logout).pack(pady=(0, 10))
+
+        # Horizontal layout container for form and recent transactions
+        content_frame = ttk.Frame(self)
+        content_frame.pack(pady=10)
+
+        # --- Left side: Transaction Form ---
+        left_frame = ttk.Frame(content_frame)
+        left_frame.pack(side="left", padx=20)
+
+        ttk.Label(left_frame, text="Add a new transaction", font=("Helvetica", 12, "bold")).pack(pady=(0, 5))
+
+        self.transaction_form = TransactionForm(
+            left_frame,
             user,
             self.transaction_service,
             self.category_service,
-            on_success=self.refresh_charts
+            on_success=self.refresh_dashboard
         )
-        form_view.pack(pady=10)
+        self.transaction_form.pack()
 
+        # --- Right side: Recent Transactions ---
+        right_frame = ttk.Frame(content_frame)
+        right_frame.pack(side="left", padx=20)
+
+        # ttk.Label(right_frame, text="Recent transactions", font=("Helvetica", 12, "bold")).pack(pady=(0, 5))
+
+        self.recent_transactions = RecentTransactions(
+            right_frame,
+            user,
+            self.transaction_service
+        )
+        self.recent_transactions.pack()
+
+        # --- Bottom: Transaction Charts ---
         self.transaction_view = TransactionView(self, user, self.transaction_service)
-        self.transaction_view.pack(pady=10)
-        self.plot_canvas = None
-        # self.plot_summary()
+        self.transaction_view.pack(pady=20)
+
+        self.refresh_dashboard()
+
+    def refresh_dashboard(self):
+        # self.transaction_view.plot_summary()
         self.transaction_view.plot_balance_over_time(2)
+        self.recent_transactions.refresh()
 
-    def refresh_charts(self):
-        self.transaction_view.plot_summary()
-        self.transaction_view.plot_balance_over_time(2)
+    def go_to_categories(self):
+        from frontend.views.category_view import CategoryView
+        self.pack_forget()
+        CategoryView(self.master, self.transaction_service, self.category_service, self.user).pack(fill="both", expand=True)
 
-    def plot_summary(self):
-        transactions = self.transaction_service.get_all_transactions(self.user)
-        income = sum(t.amount for t in transactions if t.type == IncomeOrExpense.INCOME)
-        expense = sum(t.amount for t in transactions if t.type == IncomeOrExpense.EXPENSE)
+    def go_to_graphs(self):
+        from frontend.views.graphs_view import GraphsView
+        self.pack_forget()
+        GraphsView(self.master, self.user, self.transaction_service).pack(fill="both", expand=True)
 
-        fig, ax = plt.subplots()
-        ax.pie([income, expense], labels=["Income", "Expense"], autopct="%1.1f%%", colors=["green", "red"])
-        ax.set_title("Income vs Expense")
+    def go_to_currency_converter(self):
+        from frontend.views.currency_converter_view import CurrencyConverterView
+        self.pack_forget()
+        CurrencyConverterView(self.master, self.transaction_service, self.conversion_service, self.user).pack(fill="both", expand=True)
 
-        if self.plot_canvas:
-            self.plot_canvas.get_tk_widget().destroy()
+    def delete_account(self):
+        confirm = messagebox.askyesno(
+            "Delete Account",
+            "Are you sure you want to delete your account? This cannot be undone."
+        )
 
-        self.plot_canvas = FigureCanvasTkAgg(fig, master=self)
-        self.plot_canvas.draw()
-        self.plot_canvas.get_tk_widget().pack(pady=10)
-
-    def plot_balance_over_time(self, user, last_n_months: int = None):
-        initial_balance = user.account_balance
-
-        # Get all transactions using transaction service
-        transactions = self.transaction_service.get_all_transactions(self.user)
-        if not transactions:
-            print(f"No transactions found for user {self.user.id}")
+        if not confirm:
             return
 
-        # Prepare transaction data
-        data = []
-        for t in sorted(transactions, key=lambda x: x.date):
-            signed_amount = t.amount if t.type == IncomeOrExpense.INCOME else -t.amount
-            data.append((t.date, signed_amount))
+        password = simpledialog.askstring(
+            "Confirm Password",
+            "Please enter your password to confirm:",
+            show="*"
+        )
 
-        # Create DataFrame and compute running balance
-        df = pd.DataFrame(data, columns=["date", "amount_signed"])
-        df['date'] = pd.to_datetime(df['date'])
-        df.sort_values('date', inplace=True)
+        if not password:
+            messagebox.showwarning("Cancelled", "Account deletion cancelled.")
+            return
 
-        # Filter to last N months if specified
-        if last_n_months:
-            cutoff_date = datetime.now() - relativedelta(months=last_n_months)
-            df = df[df['date'] >= cutoff_date]
+        with get_session() as session:
+            user_service = UserService(session)
+            user = user_service.login_user(self.user.username, password)
 
-        df['running_balance'] = initial_balance + df['amount_signed'].cumsum()
+            if user:
+                user_service.delete_user(user.username, password)
+                messagebox.showinfo("Account Deleted", "Your account has been deleted.")
+                from frontend.views.login_view import LoginView
+                self.pack_forget()
+                LoginView(self.master, session).pack(fill="both", expand=True)
+            else:
+                messagebox.showerror("Authentication Failed", "Incorrect password. Account was not deleted.")
 
-        # Plot
-        fig, ax = plt.subplots(figsize=(12, 6))
-        ax.plot(df['date'], df['running_balance'], marker='o', color='blue')
-        ax.set_title("Account Balance Over Time")
-        ax.set_xlabel("Date")
-        ax.set_ylabel("Balance")
-        ax.grid(True)
+    def logout(self):
+        from frontend.views.login_view import LoginView
+        with get_session() as session:
+            self.pack_forget()
+            LoginView(self.master, session).pack(fill="both", expand=True)
 
-        # Set monthly ticks on x-axis
-        ax.xaxis.set_major_locator(mdates.MonthLocator())
-        ax.xaxis.set_major_formatter(mdates.DateFormatter('%b %Y'))
-        fig.autofmt_xdate(rotation=45)
 
-        # Replace previous canvas if needed
-        if self.plot_canvas:
-            self.plot_canvas.get_tk_widget().destroy()
-
-        self.plot_canvas = FigureCanvasTkAgg(fig, master=self)
-        self.plot_canvas.draw()
-        self.plot_canvas.get_tk_widget().pack(pady=10)
 

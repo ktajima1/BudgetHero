@@ -12,7 +12,7 @@ class ConversionService:
     def __init__(self, session):
         self.repo = ConversionRepository(session)
 
-    def get_rate(self, base_currency: str, target_currency: str, date: datetime) -> ConversionRate | None:
+    def get_rate(self, base_currency: str, target_currency: str, date: datetime.date) -> ConversionRate | None:
         try:
             # First search the conversion_rate database to see if rate already exists. If not, fetch rate from API
             conv_rate = self.repo.get_rate(base_currency, target_currency, date)

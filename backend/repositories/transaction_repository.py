@@ -1,7 +1,7 @@
 from backend.utils.enums import IncomeOrExpense
 from backend.models.transaction import Transaction
 from backend.models.user import User
-from sqlalchemy import or_, func
+from sqlalchemy import or_, func, desc
 from datetime import datetime
 from typing import Any, List, Dict
 
@@ -83,6 +83,16 @@ class TransactionRepository():
                 query = query.filter(or_(func.lower(Transaction.description.contains(keyword.lower()))))
         print("trans_repo.get_trans: returning transactions that match filters")
         return query.all()
+
+    def get_recent_transactions(self, user: User, limit: int = 5) -> List[Transaction]:
+        print(f"[trans_repo.get_recent_trans]: Fetching {limit} recent transactions for user {user.id}")
+        return (
+            self.session.query(Transaction)
+            .filter_by(user_id=user.id)
+            .order_by(desc(Transaction.date))
+            .limit(limit)
+            .all()
+        )
 
     def get_all_transactions(self, user: User) -> List[Transaction]:
         #  just return all transactions

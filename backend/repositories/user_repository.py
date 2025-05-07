@@ -17,7 +17,7 @@ class UserRepository():
         self.session.add(user)
         return user
 
-    def find_user(self, username: str) -> User:
+    def find_user(self, username: str) -> User | None:
         return self.session.query(User).filter_by(username=username).first()
 
     def delete_user(self, user: User):

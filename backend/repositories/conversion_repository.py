@@ -11,7 +11,7 @@ class ConversionRepository():
     def commit(self):
         self.session.commit()
 
-    def log_rate(self, base_currency: str, target_currency: str, date: datetime, rate: float) -> ConversionRate:
+    def log_rate(self, base_currency: str, target_currency: str, date: datetime.date, rate: float) -> ConversionRate:
         new_conv_rate = ConversionRate(
             base_currency=base_currency,
             target_currency=target_currency,
@@ -31,7 +31,7 @@ class ConversionRepository():
         conv_rate.rate = new_rate
         print(f"[curr_repo.delete_rate]: changed rate for [{conv_rate.base_currency} : {conv_rate.target_currency}] from '{old_rate}' to '{new_rate}'")
 
-    def get_rate(self, base_currency: str, target_currency: str, date: datetime) -> ConversionRate | None:
+    def get_rate(self, base_currency: str, target_currency: str, date: datetime.date) -> ConversionRate | None:
         return self.session.query(ConversionRate).filter(ConversionRate.base_currency == base_currency,
                                                          ConversionRate.target_currency == target_currency,
                                                          ConversionRate.date == date

@@ -3,4 +3,4 @@ requests
 matplotlib
 pandas
 seaborn
-python-qt5
+tkcalendar
