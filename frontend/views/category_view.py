@@ -56,6 +56,7 @@ class CategoryView(Frame):
             show='headings',
             selectmode='browse'
         )
+        self.tree.pack(fill=BOTH, expand=True, pady=(0, 5))
 
         # Configure columns
         self.tree.heading('id', text='ID', anchor=W)
