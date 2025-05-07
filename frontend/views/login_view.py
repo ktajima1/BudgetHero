@@ -49,7 +49,7 @@ class LoginView(tk.Frame):
         if user:
             self.destroy()
             DashboardView(self.parent, self.session, user).pack(fill="both", expand=True)
-            self.parent.geometry("900x750")
+            self.parent.geometry("900x900")
         else:
             messagebox.showerror("Login Failed", "Invalid username or password.")
 

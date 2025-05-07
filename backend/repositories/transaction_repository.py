@@ -7,16 +7,39 @@ from typing import Any, List, Dict
 
 
 class TransactionRepository():
+    """
+    This is the repository for the transaction model
+    """
     def __init__(self, session):
         self.session = session
 
     def rollback(self):
+        """
+        Rollback the session
+        """
         self.session.rollback()
 
     def commit(self):
+        """
+        Commit changes to the database.
+        """
         self.session.commit()
 
     def create_transaction(self, user: User, amount: float, type_enum: IncomeOrExpense, date: datetime, category_id: int, description: str) -> Transaction:
+        """
+        Creates a new transaction for the given user
+
+        Args:
+            user (User): the user to create the transaction for
+            amount (float): the amount of the transaction
+            type_enum (IncomeOrExpense): the type of income or expense
+            date (datetime): the date of the transaction
+            category_id (int): the category id of the transaction
+            description (str): the description of the transaction
+
+        Returns:
+            Transaction: the transaction
+        """
         transaction = Transaction(
             user_id=user.id,
             amount=amount,
@@ -25,19 +48,29 @@ class TransactionRepository():
             description=description
         )
         self.session.add(transaction)
-        # find user
-        # connect to transaction db using user id
-        # create a transaction using amount, type (income or expense), category
-        # if: description, add description.
-        # create and commit transaction
         return transaction
 
     def delete_transaction(self, transaction: Transaction):
+        """
+        Deletes a transaction from the database
+
+        Args:
+            transaction (Transaction): the transaction to delete
+        """
         self.session.delete(transaction)
 
     def modify_transaction(self, transaction: Transaction, amount: float, type_enum: IncomeOrExpense, date: datetime, category_id: int, description: str):
-        # How do i want to  do this? i want to make it so that the "Amount", "Type", "Category" and "Description" fields of the transaction can be modified and then committed
-        # Should i reserve this method to be used w/ a button that allows
+        """
+        Modifies a transaction from the database
+
+        Args:
+            transaction (Transaction): the transaction to modify
+            amount (float): the new amount of the transaction
+            type_enum (IncomeOrExpense): the type of transaction, income or expense
+            date (datetime): the new date of the transaction
+            category_id (int): the new category id of the transaction
+            description (str): the new description of the transaction
+        """
         if amount is not None:
             transaction.amount = amount
         if type_enum is not None:
@@ -51,7 +84,16 @@ class TransactionRepository():
         print(f"[trans_repo.modify_trans]: Updated transaction {transaction.id}")
 
     def get_transactions(self, user: User, filters: Dict[str, Any]) -> List[Transaction]:
-        # return specific transactions that match the criteria
+        """
+        Returns a list of transactions for the given user that matches the given criteria in filters
+
+        Args:
+            user (User): the user to get the transactions for
+            filters (Dict[str, Any]): the filters to apply to the transactions
+
+        Returns:
+            List[Transaction]: the list of matching transactions
+        """
         # initially get full all transactions for user
         query = self.session.query(Transaction).filter_by(user_id=user.id)
 
@@ -85,6 +127,16 @@ class TransactionRepository():
         return query.all()
 
     def get_recent_transactions(self, user: User, limit: int = 5) -> List[Transaction]:
+        """
+        Returns a list of the n recent transactions for the given user (default to 5)
+
+        Args:
+            user (User): the user to get the transactions for
+            limit (int): the number of transactions to return (default to 5)
+
+        Returns:
+            List[Transaction]: the list of matching transactions
+        """
         print(f"[trans_repo.get_recent_trans]: Fetching {limit} recent transactions for user {user.id}")
         return (
             self.session.query(Transaction)
@@ -95,6 +147,14 @@ class TransactionRepository():
         )
 
     def get_all_transactions(self, user: User) -> List[Transaction]:
+        """
+        Returns a list of all transactions for the given user
+
+        Args:
+            user (User): the user to get the transactions for
+        Returns:
+            List[Transaction]: the list of matching transactions
+        """
         #  just return all transactions
         all_transactions = self.session.query(Transaction).filter_by(user_id=user.id).all()  # Does this return a list?
         print("Returning all transactions")
