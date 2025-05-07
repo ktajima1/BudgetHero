@@ -23,7 +23,7 @@ class DashboardView(tk.Frame):
         tk.Label(self, text="Dashboard", font=("Helvetica", 18, "bold"), bg="#f0fdf4").pack(pady=(20, 0))
         tk.Label(self, text=f"Welcome, {user.username.capitalize()}!", font=("Helvetica", 12), bg="#f0fdf4").pack(pady=(0, 10))
 
-        # --- Navigation Buttons ---
+        # Navigation Buttons
         nav_frame = ttk.Frame(self)
         nav_frame.pack(pady=10)
 
@@ -31,14 +31,13 @@ class DashboardView(tk.Frame):
         ttk.Button(nav_frame, text="View Graphs", command=self.go_to_graphs).pack(side="left", padx=5)
         ttk.Button(nav_frame, text="Currency Converter", command=self.go_to_currency_converter).pack(side="left", padx=5)
         ttk.Button(nav_frame, text="Delete Account", command=self.delete_account).pack(side="left", padx=5)
-        # Log Out button
         ttk.Button(self, text="Log Out", command=self.logout).pack(pady=(0, 10))
 
         # Horizontal layout container for form and recent transactions
         content_frame = ttk.Frame(self)
         content_frame.pack(pady=10)
 
-        # --- Left side: Transaction Form ---
+        # Transaction Form
         left_frame = ttk.Frame(content_frame)
         left_frame.pack(side="left", padx=20)
 
@@ -53,11 +52,9 @@ class DashboardView(tk.Frame):
         )
         self.transaction_form.pack()
 
-        # --- Right side: Recent Transactions ---
+        # Recent Transactions
         right_frame = ttk.Frame(content_frame)
         right_frame.pack(side="left", padx=20)
-
-        # ttk.Label(right_frame, text="Recent transactions", font=("Helvetica", 12, "bold")).pack(pady=(0, 5))
 
         self.recent_transactions = RecentTransactions(
             right_frame,
@@ -66,17 +63,18 @@ class DashboardView(tk.Frame):
         )
         self.recent_transactions.pack()
 
-        # --- Bottom: Transaction Charts ---
+        # Balance Overtime chart
         self.transaction_view = TransactionView(self, user, self.transaction_service)
         self.transaction_view.pack(pady=20)
 
         self.refresh_dashboard()
 
+    # refresh charts on dashboard
     def refresh_dashboard(self):
-        # self.transaction_view.plot_summary()
         self.transaction_view.plot_balance_over_time(2)
         self.recent_transactions.refresh()
 
+    # navigation
     def go_to_categories(self):
         from frontend.views.category_view import CategoryView
         self.pack_forget()

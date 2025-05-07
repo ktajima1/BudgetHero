@@ -32,14 +32,13 @@ class GraphsView(Frame):
         self.setup_graphs()
 
     def return_to_dashboard(self):
-        """Handle navigation back to dashboard"""
+        """Navigate back to dashboard"""
         from frontend.views.dashboard_view import DashboardView  # Lazy import
         self.destroy()  # Remove current view
         with get_session() as session:
             DashboardView(self.parent, session, self.user).pack()
 
     def setup_graphs(self):
-        # Main container with padding
         main_container = Frame(self, width=700, height=500)  # make container smaller than window
         main_container.pack_propagate(False)  # prevent resizing
         main_container.pack(fill=BOTH, expand=True, padx=10, pady=10)

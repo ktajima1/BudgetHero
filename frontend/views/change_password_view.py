@@ -64,6 +64,7 @@ class ChangePasswordView(tk.Frame):
                     self.back_to_login()
 
     def back_to_login(self):
+        """Navigate back to login"""
         from frontend.views.login_view import LoginView
         self.pack_forget()
         LoginView(self.parent, self.session).pack(fill="both", expand=True)

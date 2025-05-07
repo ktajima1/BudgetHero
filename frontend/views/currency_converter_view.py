@@ -18,12 +18,13 @@ class CurrencyConverterView(Frame):
         self.setup_ui()
 
     def setup_ui(self):
-        """Set up the converter interface with date selection"""
+        """Set up the currency converter interface"""
         self.pack(fill=BOTH, expand=True, padx=20, pady=20)
 
         return_frame = Frame(self)
         return_frame.grid(row=0, column=0, columnspan=1, pady=10)
 
+        # Button to return to dashboard
         return_btn = Button(
             return_frame,
             text="Return to Dashboard",
@@ -32,7 +33,7 @@ class CurrencyConverterView(Frame):
         )
         return_btn.pack(side=LEFT, padx=10)
 
-        # Date Selection
+        # Display a calendar to select date
         Label(self, text="Conversion Date:").grid(row=1, column=0, sticky="e", padx=5, pady=5)
         self.date_entry = DateEntry(
             self,
@@ -74,7 +75,7 @@ class CurrencyConverterView(Frame):
         target_dropdown.grid(row=4, column=1, sticky="w", padx=5, pady=5)
         target_dropdown.current(1 if len(self.supported_currencies) > 1 else 0)
 
-        # Action Buttons
+        # Convert and swap nuttons
         button_frame = Frame(self)
         button_frame.grid(row=5, column=0, columnspan=2, pady=10)
 
@@ -94,7 +95,7 @@ class CurrencyConverterView(Frame):
         )
         swap_btn.pack(side=LEFT, padx=5)
 
-        # Result Display
+        # Display results
         self.result_var = StringVar(value="Select currencies and date to convert")
         result_label = Label(
             self,
@@ -105,7 +106,7 @@ class CurrencyConverterView(Frame):
         result_label.grid(row=6, column=0, columnspan=2, pady=10)
 
     def return_to_dashboard(self):
-        """Handle navigation back to dashboard"""
+        """Navigate back to dashboard"""
         from frontend.views.dashboard_view import DashboardView  # Lazy import
         self.destroy()  # Remove current view
         with get_session() as session:
@@ -123,7 +124,7 @@ class CurrencyConverterView(Frame):
                 self.convert_currency()
 
     def convert_currency(self):
-        """Handle currency conversion with historical date support"""
+        """Convert currency using historical date data from API"""
         try:
             # Get input values
             amount = float(self.amount_entry.get())
