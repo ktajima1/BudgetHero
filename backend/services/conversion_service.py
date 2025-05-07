@@ -9,10 +9,23 @@ from typing import Dict
 from datetime import datetime
 
 class ConversionService:
+    """
+    Conversion service used to handle business logic for converting currencies
+    """
     def __init__(self, session):
         self.repo = ConversionRepository(session)
 
     def get_rate(self, base_currency: str, target_currency: str, date: datetime.date) -> ConversionRate | None:
+        """
+        Gets the rate for a given base currency and target currency by a date.
+        Args:
+            base_currency: The base currency.
+            target_currency: The target currency.
+            date: The date to get the rate for.
+        Returns:
+            ConversionRate: the conversion rate
+            None: If conversion rate could not be found
+        """
         try:
             # First search the conversion_rate database to see if rate already exists. If not, fetch rate from API
             conv_rate = self.repo.get_rate(base_currency, target_currency, date)
@@ -36,6 +49,18 @@ class ConversionService:
             return None
 
     def log_rate(self, base_currency: str, target_currency: str, date: datetime, rate: float) -> ConversionRate | Dict[str,str] | None:
+        """
+        Logs a new rate for a given base currency and target currency and date. Checks that currency types are of the 147 currencies supported by the app before creating.
+        Args:
+            base_currency: The base currency.
+            target_currency: The target currency.
+            date: The date to get the rate for.
+            rate: The new rate.
+        returns:
+            ConversionRate: the conversion rate
+            None: If conversion rate could not be found
+            Dict[str,str]: If conversion rate has validation errors
+        """
         validation_errors = validate_rate(base_currency, target_currency, date, rate)
         if validation_errors:
             handle_errors(validation_errors, "conv_serv.log_rate")
@@ -54,6 +79,14 @@ class ConversionService:
             return None
 
     def delete_rate(self, conv_rate: ConversionRate) -> bool:
+        """
+        Deletes rate given a conversion rate.
+        Args:
+            conv_rate: The conversion rate instance
+        Returns:
+            True: If the rate was deleted.
+            False: If the rate was not deleted.
+        """
         try:
             print(f"[conv_serv.del_conv]: Running deletion of rate [{conv_rate.base_currency}:{conv_rate.target_currency}]")
             self.repo.delete_rate(conv_rate)
@@ -64,6 +97,15 @@ class ConversionService:
             return False
 
     def change_rate(self, conv_rate: ConversionRate, new_rate: float) -> bool:
+        """
+        Changes rate given a conversion rate instance and new rate.
+        Args:
+            conv_rate: The conversion rate instance
+            new_rate: The new rate.
+        Returns:
+            True: If the rate was changed.
+            False: If the rate was not changed.
+        """
         try:
             print(f"[conv_serv.change_conv]: Changing rate for [{conv_rate.base_currency}:{conv_rate.target_currency}]")
             self.repo.change_rate(conv_rate, new_rate)
@@ -74,12 +116,30 @@ class ConversionService:
             return False
 
     def get_details(self, conv_rate: ConversionRate) -> str:
+        """
+        Gets details of a given conversion rate.
+        Args:
+            conv_rate: The conversion rate instance
+        Returns:
+            str: Details of a given conversion rate
+        """
         return(f"Base Currency: {conv_rate.base_currency} "
               f"Target Currency: {conv_rate.target_currency} "
               f"Date: {conv_rate.date} "
               f"Rate: {conv_rate.rate} ")
 
 def validate_rate(base_currency: str, target_currency: str, date: datetime, rate: float) -> Dict[str, str]:
+    """
+    Checks whether a given base currency and target currency are a valid currency type supported by the app. Checks that rate is greater than 0
+    Args:
+        base_currency: The base currency.
+        target_currency: The target currency.
+        date: The date to get the rate for.
+        rate: The new rate.
+    Returns:
+        Dict[str, str]: If the rate is valid.
+        {}: If no errors were found.
+    """
     errors = {}
     # Category name cannot be empty
     if base_currency not in SUPPORTED_CURRENCIES:

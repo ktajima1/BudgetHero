@@ -10,11 +10,28 @@ from datetime import datetime
 from typing import List, Dict, Any
 
 class TransactionService:
+    """
+    Transaction Service used to handle business logic with creating, deleting, and modifying transactions.
+    """
     def __init__(self, session):
         self.repo = TransactionRepository(session)
         self.user_serv = UserService(session)
 
     def create_transaction(self, user: User, amount: float, type_str: str, date: datetime, category_id: int, description: str) -> Transaction | Dict[str,str] | None:
+        """
+        Creates a new transaction. Checks that the transaction details are valid before creation.
+        Args:
+            user (User): The user who created the transaction.
+            amount (float): The amount of the transaction.
+            type_str (str): The type of the transaction.
+            date (datetime): The date the transaction was created.
+            category_id (int): The category ID of the transaction.
+            description (str): The description of the transaction.
+        Returns:
+            Transaction: the newly created transaction.
+            Dict[str,str]: A list of errors caused by transaction details
+            None: Transaction either already exists or could not be created.
+        """
         validation_errors = validate_transaction(user, amount, type_str, date, category_id, description)
         if validation_errors:
             handle_errors(validation_errors, "trans_serv.create_trans")
@@ -46,6 +63,14 @@ class TransactionService:
             return None
 
     def delete_transaction(self, transaction: Transaction) -> bool:
+        """
+        Deletes transaction using transaction_repo
+        Args:
+            transaction (Transaction): The transaction to delete.
+        Returns:
+            True: Transaction was deleted.
+            False: Transaction was not deleted.
+        """
         try:
             self.repo.delete_transaction(transaction)
             self.repo.commit()  # Commit changes
